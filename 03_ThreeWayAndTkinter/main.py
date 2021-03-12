@@ -11,8 +11,26 @@ class Application:
         self.board_buttons = np.zeros(board_shape, dtype = tk.Button)
         self.board_numbers = np.arange(1, 17).reshape(4, 4)
 
+    def get_permutation(self, board_numbers):
+        check = board_shape[0]
+        for i in range(board_numbers.size):
+            check += np.sum(board_numbers[i:] < board_numbers[i])
+
+        if (check % 2 == 0):
+            return board_numbers
+        else:
+            return self.get_permutation(np.random.permutation(15) + 1)
+
     def shuffle(self):
-        pass
+        self.board_numbers = np.concatenate([self.get_permutation(np.random.permutation(15) + 1), [16]]).reshape(4, 4)
+
+        self.board_buttons[self.i, self.j].grid(row = self.i, column = self.j, sticky = tk.NSEW)
+        self.i, self.j = board_shape[0] - 1, board_shape[1] - 1
+
+        for i in range(board_shape[0]):
+            for j in range(board_shape[1]):
+                self.board_buttons[i, j].configure(text = str(self.board_numbers[i, j]))
+        self.board_buttons[self.i, self.j].grid_forget()
 
     def check_victory(self):
         if (np.array_equal(self.board_numbers, np.arange(1, 17).reshape(4, 4))):
